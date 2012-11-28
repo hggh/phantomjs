@@ -69,6 +69,7 @@ static const struct QCommandLineConfigEntry flags[] =
     { QCommandLine::Param, '\0', "argument", "Script argument", QCommandLine::OptionalMultiple },
     { QCommandLine::Switch, 'h', "help", "Shows this message and quits", QCommandLine::Optional },
     { QCommandLine::Switch, 'v', "version", "Prints out PhantomJS version", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "ignore-host", "Regex of host to ignore. default off, ex. '(google.com|facebook.com)'", QCommandLine::Optional},
     QCOMMANDLINE_CONFIG_ENTRY_END
 };
 
@@ -117,6 +118,7 @@ void Config::processArgs(const QStringList &args)
     }
 }
 
+
 void Config::loadJsonFile(const QString &filePath)
 {
     QString jsonConfig;
@@ -162,6 +164,16 @@ bool Config::autoLoadImages() const
 void Config::setAutoLoadImages(const bool value)
 {
     m_autoLoadImages = value;
+}
+
+QString Config::ignoreHostRegexp() const
+{
+  return m_ignoreHostRegexp;
+}
+
+void Config::setIgnoreHostRegexp(const QString &value)
+{
+    m_ignoreHostRegexp = value;
 }
 
 QString Config::cookiesFile() const
@@ -487,6 +499,7 @@ void Config::resetToDefaults()
 {
     m_autoLoadImages = true;
     m_cookiesFile = QString();
+    m_ignoreHostRegexp = QString();
     m_offlineStoragePath = QString();
     m_offlineStorageDefaultQuota = -1;
     m_diskCacheEnabled = false;
@@ -583,6 +596,9 @@ void Config::handleOption(const QString &option, const QVariant &value)
         boolValue = (value == "true") || (value == "yes");
     }
 
+    if (option == "ignore-host") {
+        setIgnoreHostRegexp(value.toString());
+    }
     if (option == "cookies-file") {
         setCookiesFile(value.toString());
     }

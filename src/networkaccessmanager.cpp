@@ -73,6 +73,7 @@ NetworkAccessManager::NetworkAccessManager(QObject *parent, const Config *config
     , m_ignoreSslErrors(config->ignoreSslErrors())
     , m_authAttempts(0)
     , m_maxAuthAttempts(3)
+    , m_ignoreHostRegexp(config->ignoreHostRegexp())
     , m_idCounter(0)
     , m_networkDiskCache(0)
     , m_sslConfiguration(QSslConfiguration::defaultConfiguration())
@@ -178,7 +179,24 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
     }
 
     // Pass duty to the superclass - Nothing special to do here (yet?)
-    QNetworkReply *reply = QNetworkAccessManager::createRequest(op, req, outgoingData);
+    QNetworkReply *reply = 0;
+    if (m_ignoreHostRegexp != "") {
+      QRegExp rx(m_ignoreHostRegexp);
+      if (req.url().host().contains(rx)) {
+          qWarning() << "IgnoreHostRegexp matched: " << req.url().host();
+          reply = QNetworkAccessManager::createRequest(op, QNetworkRequest(QUrl()));
+      }
+      else {
+          reply = QNetworkAccessManager::createRequest(op, req, outgoingData);
+      }
+    }
+    else {
+        reply = QNetworkAccessManager::createRequest(op, req, outgoingData);
+    }
+
+    if(m_ignoreSslErrors) {
+        reply->ignoreSslErrors();
+    }
 
     QVariantList headers;
     foreach (QByteArray headerName, req.rawHeaderList()) {

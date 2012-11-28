@@ -59,6 +59,7 @@ protected:
     bool m_ignoreSslErrors;
     int m_authAttempts;
     int m_maxAuthAttempts;
+    QString m_ignoreHostRegexp;
     QString m_userName;
     QString m_password;
     QNetworkReply *createRequest(Operation op, const QNetworkRequest & req, QIODevice * outgoingData = 0);
