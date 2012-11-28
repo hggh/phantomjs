@@ -194,10 +194,6 @@ QNetworkReply *NetworkAccessManager::createRequest(Operation op, const QNetworkR
         reply = QNetworkAccessManager::createRequest(op, req, outgoingData);
     }
 
-    if(m_ignoreSslErrors) {
-        reply->ignoreSslErrors();
-    }
-
     QVariantList headers;
     foreach (QByteArray headerName, req.rawHeaderList()) {
         QVariantMap header;
